@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using TodoApi.Interfaces;
+using TodoApi.Models;
 
 namespace TodoApi.Results
 {
@@ -27,6 +31,17 @@ namespace TodoApi.Results
             context.HttpContext.Response.GetTypedHeaders().ContentType = new MediaTypeHeaderValue(_contentType);
             _onStreamAvailable(stream, _requestAborted);
             return Task.CompletedTask;
+        }
+
+        public void OnStreamAvailable(Stream stream, CancellationToken requestAborted)
+        {
+            var wait = requestAborted.WaitHandle;
+            _clients.Add(new StreamWriter(stream));
+
+            wait.WaitOne();
+
+            StreamWriter ignore;
+            _clients.TryTake(out ignore);
         }
     }
 }

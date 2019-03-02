@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using TodoApi.Models;
 using TodoApi.Results;
+using TodoApi.Interfaces;
 
 namespace TodoApi.Controllers
 {
@@ -16,14 +16,10 @@ namespace TodoApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private static List<Client> _clientsRepo;
-        private static ConcurrentBag<StreamWriter> _clients;
+        private static List<Client> _clientsRepo = new List<Client>();
+        private IPushStream _pushStream;
 
-        static ValuesController()
-        {
-            _clientsRepo = new List<Client>();
-            _clients = new ConcurrentBag<StreamWriter>();
-        }
+        public ValuesController(IPushStream pushStream) => _pushStream = pushStream;
 
         // GET api/values
         [HttpGet]
@@ -41,7 +37,7 @@ namespace TodoApi.Controllers
             if(clientFound != null)
                 _clientsRepo.Remove(clientFound);
             _clientsRepo.Add(client);
-            EnviarEvento(client, ClientFlowEnum.Insert);
+            _pushStream.PushInfo(client, ClientFlowEnum.Insert);
             return client;
         }
 
@@ -55,31 +51,6 @@ namespace TodoApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-        }
-        
-        [HttpGet]
-        [Route("Streaming")]
-        public IActionResult Stream() => new PushStreamResult(OnStreamAvailable, "text/event-stream", HttpContext.RequestAborted);
-
-        private static async Task EnviarEvento(object dados, ClientFlowEnum clientFlow)
-        {
-            foreach (var client in _clients)
-            {
-                string jsonEvento = string.Format("{0}\n", JsonConvert.SerializeObject(new { dados, clientFlow }));
-                await client.WriteAsync(jsonEvento);
-                await client.FlushAsync();
-            }
-        }
-        private void OnStreamAvailable(Stream stream, CancellationToken requestAborted)
-        {
-            var wait = requestAborted.WaitHandle;
-            var client = new StreamWriter(stream);
-            _clients.Add(client);
-
-            wait.WaitOne();
-
-            StreamWriter ignore;
-            _clients.TryTake(out ignore);
         }
     }
 }
