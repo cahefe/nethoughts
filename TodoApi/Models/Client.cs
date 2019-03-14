@@ -1,9 +1,11 @@
+using System;
+
 namespace TodoApi.Models
 {
     public class Client
     {
-        public long Id { get; set; }
-
+        public int ID { get; set; }
         public string Name { get; set; }
+        public DateTime BornDate { get; set; }
     }
 }

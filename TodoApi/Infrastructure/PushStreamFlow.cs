@@ -1,0 +1,39 @@
+using System.Collections.Concurrent;
+using System.IO;
+using System.Threading;
+using Newtonsoft.Json;
+using TodoApi.Interfaces;
+using TodoApi.Models;
+
+namespace TodoApi.Infrastructure
+{
+    public class PushStreamFlow : IProducer, IConsumer
+    {
+        private static ConcurrentBag<StreamWriter> _streams;
+        static PushStreamFlow()
+        {
+            _streams = new ConcurrentBag<StreamWriter>();
+        }
+        public void ProduceInfo(object info, EnumRefreshType refreshType)
+        {
+            foreach (var stream in _streams)
+            {
+                string jsonInfo = JsonConvert.SerializeObject(new { info, refreshType }).ToString();
+                // string jsonInfo = string.Format("{0}\n", JsonConvert.SerializeObject(new { info, refreshType }));
+                // await stream.WriteAsync(jsonInfo);
+                stream.WriteAsync(jsonInfo).Wait();
+                // await stream.FlushAsync();
+                stream.FlushAsync().Wait();
+            }
+        }
+        public void OnStreamAvailable(Stream stream, CancellationToken requestAborted)
+        {
+            var wait = requestAborted.WaitHandle;
+            _streams.Add(new StreamWriter(stream));
+            wait.WaitOne();
+
+            StreamWriter ignore;
+            _streams.TryTake(out ignore);
+        }
+    }
+}
