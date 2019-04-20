@@ -4,6 +4,6 @@ namespace TodoApi.Interfaces
 {
     public interface IProducer
     {
-        void ProduceInfo(object info, EnumRefreshType refreshType);
+        void Broadcast(object info, EnumRefreshType refreshType);
     }   
 }

@@ -14,7 +14,7 @@ namespace TodoApi.Infrastructure
         {
             _streams = new ConcurrentBag<StreamWriter>();
         }
-        public void ProduceInfo(object info, EnumRefreshType refreshType)
+        public void Broadcast(object info, EnumRefreshType refreshType)
         {
             foreach (var stream in _streams)
             {

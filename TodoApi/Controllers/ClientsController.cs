@@ -10,7 +10,7 @@ namespace TodoApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientsController : ControllerBase, IProducer
+    public class ClientsController : ControllerBase
     {
         private readonly IProducer _producer;
 
@@ -29,10 +29,7 @@ namespace TodoApi.Controllers
             }
         };
 
-        public ClientsController(IProducer producer)
-        {
-            _producer = producer;
-        }
+        public ClientsController(IProducer producer) => _producer = producer;
 
         // GET api/values
         [HttpGet]
@@ -57,7 +54,7 @@ namespace TodoApi.Controllers
         {
             client.ID = _clients.Max(c => c.ID) + 1;
             _clients.Add(client);
-            _producer.ProduceInfo(client, EnumRefreshType.Inserted);
+            _producer.Broadcast(client, EnumRefreshType.Inserted);
             return client;
         }
 
@@ -70,7 +67,7 @@ namespace TodoApi.Controllers
                 return NotFound();
             _clients.Remove(clientFound);
             _clients.Add(client);
-            _producer.ProduceInfo(client, EnumRefreshType.Updated);
+            _producer.Broadcast(client, EnumRefreshType.Updated);
             return client;
         }
 
@@ -82,13 +79,8 @@ namespace TodoApi.Controllers
             if (clientFound == null)
                 return NotFound();
             _clients.Remove(clientFound);
-            _producer.ProduceInfo(clientFound, EnumRefreshType.Deleted);
-            return Ok();
-        }
-
-        public void ProduceInfo(object info, EnumRefreshType refreshType)
-        {
-            throw new NotImplementedException();
+            _producer.Broadcast(clientFound, EnumRefreshType.Deleted);
+            return Accepted(value: clientFound);
         }
     }
 }

@@ -10,23 +10,23 @@ using TodoApi.Models;
 
 namespace TodoApi.Results
 {
+    /// ref: https://www.lambda3.com.br/2018/11/criando-uma-api-streaming-com-net-core/
     public class PushStreamResult : IActionResult
     {
-        private readonly IConsumer _consumer;
         private readonly Action<Stream, CancellationToken> _onStreamAvailable;
         private readonly CancellationToken _requestAborted;
         private readonly MediaTypeHeaderValue _contentType = new MediaTypeHeaderValue("text/event-stream");
 
-        public PushStreamResult(IConsumer consumer)
+        public PushStreamResult(Action<Stream, CancellationToken> onStreamAvailable, CancellationToken requestAborted)
         {
-            _consumer = consumer;
+            _onStreamAvailable = onStreamAvailable;
+            _requestAborted = requestAborted;
         }
 
         public Task ExecuteResultAsync(ActionContext context)
         {
-            var stream = context.HttpContext.Response.Body;
             context.HttpContext.Response.GetTypedHeaders().ContentType = _contentType;
-            _onStreamAvailable(stream, _requestAborted);
+            _onStreamAvailable(context.HttpContext.Response.Body, _requestAborted);
             return Task.CompletedTask;
         }
     }
