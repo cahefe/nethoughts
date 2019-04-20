@@ -18,8 +18,8 @@ namespace TodoApi.Infrastructure
         {
             foreach (var stream in _streams)
             {
-                string jsonInfo = JsonConvert.SerializeObject(new { info, refreshType }).ToString();
-                // string jsonInfo = string.Format("{0}\n", JsonConvert.SerializeObject(new { info, refreshType }));
+                string type = info.GetType().FullName;
+                string jsonInfo = JsonConvert.SerializeObject(new { type, info, refreshType }).ToString();
                 // await stream.WriteAsync(jsonInfo);
                 stream.WriteAsync(jsonInfo).Wait();
                 // await stream.FlushAsync();
