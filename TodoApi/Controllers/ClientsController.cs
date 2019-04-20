@@ -33,10 +33,7 @@ namespace TodoApi.Controllers
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IList<Client>> Get()
-        {
-            return _clients.ToList();
-        }
+        public ActionResult<IList<Client>> Get() => _clients.ToList();
 
         // GET api/values/5
         [HttpGet("{id}")]

@@ -17,11 +17,7 @@ namespace TodoApi.Results
         private readonly CancellationToken _requestAborted;
         private readonly MediaTypeHeaderValue _contentType = new MediaTypeHeaderValue("text/event-stream");
 
-        public PushStreamResult(Action<Stream, CancellationToken> onStreamAvailable, CancellationToken requestAborted)
-        {
-            _onStreamAvailable = onStreamAvailable;
-            _requestAborted = requestAborted;
-        }
+        public PushStreamResult(Action<Stream, CancellationToken> onStreamAvailable, CancellationToken requestAborted) => (_onStreamAvailable, _requestAborted) = (onStreamAvailable, requestAborted);
 
         public Task ExecuteResultAsync(ActionContext context)
         {

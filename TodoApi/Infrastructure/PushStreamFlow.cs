@@ -10,19 +10,14 @@ namespace TodoApi.Infrastructure
     public class PushStreamFlow : IProducer, IConsumer
     {
         private static ConcurrentBag<StreamWriter> _streams;
-        static PushStreamFlow()
-        {
-            _streams = new ConcurrentBag<StreamWriter>();
-        }
+        static PushStreamFlow() => _streams = new ConcurrentBag<StreamWriter>();
         public void Broadcast(object info, EnumRefreshType refreshType)
         {
             foreach (var stream in _streams)
             {
                 string type = info.GetType().FullName;
-                string jsonInfo = JsonConvert.SerializeObject(new { type, info, refreshType }).ToString();
-                // await stream.WriteAsync(jsonInfo);
+                string jsonInfo = JsonConvert.SerializeObject(value: new { type, info, refreshType }).ToString();
                 stream.WriteAsync(jsonInfo).Wait();
-                // await stream.FlushAsync();
                 stream.FlushAsync().Wait();
             }
         }
