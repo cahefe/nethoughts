@@ -26,6 +26,11 @@ namespace TodoApi.Controllers
                 ID = 2,
                 Name = "Maria",
                 BornDate = new DateTime(1995, 2, 28)
+            },
+            new Client() {
+                ID = 3,
+                Name = "Romilda",
+                BornDate = new DateTime(1945, 6, 8)
             }
         };
 
