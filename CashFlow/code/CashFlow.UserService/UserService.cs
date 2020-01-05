@@ -9,7 +9,7 @@ namespace CashFlow.UserService
         public void Check(User user)
         {
             if (user.ID == 1)
-                throw new NullReferenceException("Valor inválido");
+                throw new ArgumentException("Valor inválido");
         }
     }
 }
