@@ -10,6 +10,8 @@ namespace CashFlow.UserService
         {
             if (user.ID == 1)
                 throw new ArgumentException("Valor inválido");
+            if (string.IsNullOrEmpty(user.Login))
+                throw new ArgumentException("Valor inválido");
         }
     }
 }
