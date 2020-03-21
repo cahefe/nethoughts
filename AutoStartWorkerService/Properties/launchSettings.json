@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "AutoStartWorkerService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

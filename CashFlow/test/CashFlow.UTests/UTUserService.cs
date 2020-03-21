@@ -15,10 +15,7 @@ namespace CachFlow.UTests
             Login = "baseuser",
             CreateDate = new DateTime(2017, 7, 31)
         };
-        public UTUserService()
-        {
-            _userService = new UserService();
-        }
+        public UTUserService() => _userService = new UserService();
 
         [Fact()]
         public void Test1() => Assert.Equal("Valor inválido", Assert.Throws<ArgumentException>(() => _userService.Check(_baseUser)).Message);
