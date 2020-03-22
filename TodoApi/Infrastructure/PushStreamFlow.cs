@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
-using Newtonsoft.Json;
 using TodoApi.Interfaces;
 using TodoApi.Models;
 
@@ -16,7 +16,7 @@ namespace TodoApi.Infrastructure
             foreach (var stream in _streams)
             {
                 string type = info.GetType().FullName;
-                string jsonInfo = JsonConvert.SerializeObject(value: new { type, info, refreshType }).ToString();
+                string jsonInfo = JsonSerializer.Serialize(new { type, info, refreshType });
                 stream.WriteAsync(jsonInfo).Wait();
                 stream.FlushAsync().Wait();
             }
