@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using KafkaPublishSubscriber.FileLoggerProvider;
 using System.Threading;
+using System.Text.Json;
+using StackExchange.Redis;
 
 namespace KafkaPublishSubscriber
 {
@@ -15,6 +17,7 @@ namespace KafkaPublishSubscriber
         static bool isProcessing = true;
         static CancellationTokenSource _cts = new CancellationTokenSource();
         static ILogger _logger;
+        static IDatabase _cache;
         static void Main(string[] args)
         {
             var builtConfig = new ConfigurationBuilder()
@@ -45,6 +48,11 @@ namespace KafkaPublishSubscriber
             });
             _logger = loggerFactory.CreateLogger<Program>();
 
+            UseRedis();
+            return;
+
+
+
             List<Task> TaskList = new List<Task>();
             for (int x = 0; x < 10; x++)
             {
@@ -63,6 +71,55 @@ namespace KafkaPublishSubscriber
                             };
             Task.WaitAll(TaskList.ToArray());
         }
+
+        /// https://www.c-sharpcorner.com/UploadFile/2cc834/using-redis-cache-with-C-Sharp/
+        static void UseRedis()
+        {
+            _cache = RedisConnectorHelper.Connection.GetDatabase();
+            _logger.LogInformation("Saving random data in cache");
+            CacheSaveBigData();
+
+            _logger.LogInformation("Reading data from cache");
+            CacheReadData();
+
+            _logger.LogInformation("Finished");
+        }
+        static void CacheReadData()
+        {
+            int devicesCount = Get("devicesCount", -1);
+            for (int i = 0; i < devicesCount; i++)
+            {
+                int value = Get<int>($"Device_Status:{i}", -1);
+                _logger.LogInformation($"Valor={value}");
+            }
+        }
+
+        static void CacheSaveBigData()
+        {
+            var rnd = new Random();
+            var devicesCount = 10;
+
+            Set<int>("devicesCount", devicesCount, 60);
+
+            for (int i = 0; i < devicesCount; i++)
+            {
+                var value = rnd.Next(0, 10000);
+                Set<int>($"Device_Status:{i}", value, 20);
+            }
+        }
+        static void Set<T>(string key, object value, int seconds)
+        {
+            //var cache = RedisConnectorHelper.Connection.GetDatabase();
+            _cache.StringSet(key, JsonSerializer.Serialize(value, typeof(T)), new TimeSpan(0, 0, seconds));
+        }
+        static T Get<T>(string key, T defaultValue)
+        {
+            var value = _cache.StringGet(key);
+            if (value.HasValue)
+                return (T)JsonSerializer.Deserialize(value, typeof(T));
+            return defaultValue;
+        }
+
         static async void GoProduce()
         {
             int cont = 0;
