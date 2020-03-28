@@ -12,6 +12,14 @@ using StackExchange.Redis;
 
 namespace KafkaPublishSubscriber
 {
+    struct Info
+    {
+        public int ID { get; set; }
+        public decimal Decimal { get; set; }
+        public string Texto { get; set; }
+        public DateTime Data { get; set; }
+    }
+
     class Program
     {
         static bool isProcessing = true;
@@ -76,13 +84,48 @@ namespace KafkaPublishSubscriber
         static void UseRedis()
         {
             _cache = RedisConnectorHelper.Connection.GetDatabase();
+
+            var MyInfo = new Info()
+            {
+                Data = new DateTime(2025, 12, 7, 23, 7, 58),
+                ID = 1010101,
+                Decimal = 9.122m,
+                Texto = "Strutura de texto"
+
+            };
+            Set<Info>("MyInfo", MyInfo);
+
+            _logger.LogInformation("MyInfo: " + MyInfo.ToString());
+
             _logger.LogInformation("Saving random data in cache");
             CacheSaveBigData();
 
             _logger.LogInformation("Reading data from cache");
             CacheReadData();
 
+            Thread.Sleep(1000);
+
+            int devicesCount = Get($"devicesCount", -1);
+            _logger.LogInformation($"devicesCount: {devicesCount}");
+
+            Set<int>("devicesCount", 10);
+            devicesCount = Get($"devicesCount", -1);
+            _logger.LogInformation($"devicesCount: {devicesCount}");
+
             _logger.LogInformation("Finished");
+        }
+        static void CacheSaveBigData()
+        {
+            var rnd = new Random();
+            var devicesCount = 10;
+
+            Set<int>("devicesCount", devicesCount, 3);
+
+            for (int i = 0; i < devicesCount; i++)
+            {
+                var value = rnd.Next(0, 10000);
+                Set<int>($"Device_Status:{i}", value, 1);
+            }
         }
         static void CacheReadData()
         {
@@ -93,25 +136,7 @@ namespace KafkaPublishSubscriber
                 _logger.LogInformation($"Valor={value}");
             }
         }
-
-        static void CacheSaveBigData()
-        {
-            var rnd = new Random();
-            var devicesCount = 10;
-
-            Set<int>("devicesCount", devicesCount, 60);
-
-            for (int i = 0; i < devicesCount; i++)
-            {
-                var value = rnd.Next(0, 10000);
-                Set<int>($"Device_Status:{i}", value, 20);
-            }
-        }
-        static void Set<T>(string key, object value, int seconds)
-        {
-            //var cache = RedisConnectorHelper.Connection.GetDatabase();
-            _cache.StringSet(key, JsonSerializer.Serialize(value, typeof(T)), new TimeSpan(0, 0, seconds));
-        }
+        static void Set<T>(string key, object value, int seconds = 0) => _cache.StringSet(key, JsonSerializer.Serialize(value, typeof(T)), seconds <= 0 ? (TimeSpan?)null : new TimeSpan(0, 0, seconds));
         static T Get<T>(string key, T defaultValue)
         {
             var value = _cache.StringGet(key);
