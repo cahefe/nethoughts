@@ -9,17 +9,10 @@ using KafkaPublishSubscriber.FileLoggerProvider;
 using System.Threading;
 using System.Text.Json;
 using StackExchange.Redis;
+using KafkaPublishSubscriber.Configuration;
 
 namespace KafkaPublishSubscriber
 {
-    struct Info
-    {
-        public int ID { get; set; }
-        public decimal Decimal { get; set; }
-        public string Texto { get; set; }
-        public DateTime Data { get; set; }
-    }
-
     class Program
     {
         static bool isProcessing = true;
@@ -29,9 +22,18 @@ namespace KafkaPublishSubscriber
         static void Main(string[] args)
         {
             var builtConfig = new ConfigurationBuilder()
+            .SetBasePath(Environment.CurrentDirectory)
             .AddJsonFile("appsettings.json")
+            // *** Boa referência ***
+            // Custom Configuration in .NET Core 2+ (Como criar um leitor de configurações)
+            // https://medium.com/@dneimke/custom-configuration-in-net-core-2-193ff6f02046
+            // +Complemento (realizar refresh)
+            // https://docs.microsoft.com/pt-br/archive/msdn-magazine/2017/december/cutting-edge-configuring-asp-net-core-applications
+
+            .AddRedisConfigProvider()
             //.AddCommandLine(args)
             .Build();
+            string redisserver = builtConfig.GetValue<string>("RedisConfig:hostport");
             //  Consultar: https://www.codeproject.com/Articles/1556475/How-to-Write-a-Custom-Logging-Provider-in-ASP-NET e https://docs.microsoft.com/pt-br/aspnet/core/fundamentals/logging/?view=aspnetcore-3.1
             //  Detalhes de log: https://docs.microsoft.com/pt-br/archive/msdn-magazine/2016/april/essential-net-logging-with-net-core
             var loggerFactory = LoggerFactory.Create(builder =>
@@ -84,18 +86,6 @@ namespace KafkaPublishSubscriber
         static void UseRedis()
         {
             _cache = RedisConnectorHelper.Connection.GetDatabase();
-
-            var MyInfo = new Info()
-            {
-                Data = new DateTime(2025, 12, 7, 23, 7, 58),
-                ID = 1010101,
-                Decimal = 9.122m,
-                Texto = "Strutura de texto"
-
-            };
-            Set<Info>("MyInfo", MyInfo);
-
-            _logger.LogInformation("MyInfo: " + MyInfo.ToString());
 
             _logger.LogInformation("Saving random data in cache");
             CacheSaveBigData();

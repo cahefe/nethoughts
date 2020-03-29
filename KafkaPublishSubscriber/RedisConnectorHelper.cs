@@ -8,7 +8,7 @@ namespace KafkaPublishSubscriber
     {
         static RedisConnectorHelper() => RedisConnectorHelper.lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
                                        {
-                                           return ConnectionMultiplexer.Connect("localhost:6379");
+                                           return ConnectionMultiplexer.Connect("localhost");
                                        });
 
         private static Lazy<ConnectionMultiplexer> lazyConnection;
