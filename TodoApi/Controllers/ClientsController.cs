@@ -20,12 +20,14 @@ namespace TodoApi.Controllers
             {
                 ID = 1,
                 Name = "José",
-                BornDate = new DateTime(2001, 5, 31)
+                BornDate = new DateTime(2001, 5, 31),
+                ClientConditions = EnumClientConditions.Marryied | EnumClientConditions.Children
             },
             new Client() {
                 ID = 2,
                 Name = "Maria",
-                BornDate = new DateTime(1995, 2, 28)
+                BornDate = new DateTime(1995, 2, 28),
+                ClientConditions = EnumClientConditions.Employee | EnumClientConditions.Children | EnumClientConditions.Marryied
             },
             new Client() {
                 ID = 3,
