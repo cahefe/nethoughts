@@ -1,6 +1,5 @@
 using System.IO;
 using System.Threading;
-using TodoApi.Models;
 
 namespace TodoApi.Interfaces
 {

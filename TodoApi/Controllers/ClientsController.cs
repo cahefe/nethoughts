@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Models;
 using TodoApi.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace TodoApi.Controllers
 {
@@ -13,6 +13,7 @@ namespace TodoApi.Controllers
     public class ClientsController : ControllerBase
     {
         private readonly IProducer _producer;
+        private readonly CustomerContext _customerContext;
 
         private static List<Client> _clients = new List<Client>()
         {
@@ -36,11 +37,11 @@ namespace TodoApi.Controllers
             }
         };
 
-        public ClientsController(IProducer producer) => _producer = producer;
+        public ClientsController(IProducer producer, CustomerContext customerContext) => (_producer, _customerContext) = (producer, customerContext);
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IList<Client>> Get() => _clients.ToList();
+        public ActionResult<IEnumerable<Client>> Get() => _customerContext.Clients.ToList();//  _clients.ToList();
 
         // GET api/values/5
         [HttpGet("{id}")]

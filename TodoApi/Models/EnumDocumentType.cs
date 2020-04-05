@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace TodoApi.Models
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum EnumDocumentType : byte
     {
         Unknown = 0,

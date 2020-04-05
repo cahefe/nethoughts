@@ -13,6 +13,7 @@ namespace TodoApi.Controllers
     public class DocumentsController : ControllerBase
     {
         private readonly IProducer _producer;
+        private readonly CustomerContext _customerContext;
 
         private static List<Document> _documents = new List<Document>()
         {
@@ -31,11 +32,11 @@ namespace TodoApi.Controllers
             }
         };
 
-        public DocumentsController(IProducer producer) => _producer = producer;
+        public DocumentsController(IProducer producer, CustomerContext customerContext) => (_producer, _customerContext) = (producer, customerContext);
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IList<Document>> Get() => _documents.ToList();
+        public ActionResult<IEnumerable<Document>> Get() => _customerContext.Documents.ToList(); // _documents.ToList();
 
         // GET api/values/5
         [HttpGet("{id}")]
