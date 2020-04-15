@@ -5,12 +5,13 @@ namespace API_RoleBased_Swagger
     [Flags]
     public enum EnumAppProfiles
     {
-        Public = 0,
-        Users = 1,
-        Forecast = 2
+        Undefined = 0,
+        Public = 1,
+        Users = 2,
+        Forecast = 4
     }
 
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     public class AppProfilesAttribute : Attribute
     {
         public AppProfilesAttribute(EnumAppProfiles profiles) => Prifiles = profiles;

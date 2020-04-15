@@ -4,6 +4,8 @@ using API_RoleBased_Swagger.Services;
 using API_RoleBased_Swagger.Models;
 using API_RoleBased_Swagger.Entities;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using AutoMapper;
 
 namespace API_RoleBased_Swagger.Controllers
 {
@@ -13,10 +15,12 @@ namespace API_RoleBased_Swagger.Controllers
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
+        private IMapper _mapper;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -40,7 +44,6 @@ namespace API_RoleBased_Swagger.Controllers
         [HttpPost("authenticate")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [AppProfiles(EnumAppProfiles.Users | EnumAppProfiles.Forecast)]
         public IActionResult Authenticate([FromBody]AuthenticateModel model)
         {
             var user = _userService.Authenticate(model.Username, model.Password);
@@ -51,16 +54,18 @@ namespace API_RoleBased_Swagger.Controllers
             return Ok(user);
         }
 
-        [Authorize(Roles = Role.Admin)]
         [HttpGet]
-        public IActionResult GetAll()
+        [Authorize(Roles = Role.Admin)]
+        [AppProfiles(EnumAppProfiles.Users | EnumAppProfiles.Forecast)]
+        public ActionResult<IEnumerable<User>> GetAll()
         {
             var users = _userService.GetAll();
             return Ok(users);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        [AppProfiles(EnumAppProfiles.Users)]
+        public ActionResult<User> GetById(int id)
         {
             // only allow admins to access other user records
             var currentUserId = int.Parse(User.Identity.Name);
@@ -75,8 +80,9 @@ namespace API_RoleBased_Swagger.Controllers
             return Ok(user);
         }
         [AllowAnonymous]
+        [AppProfiles(EnumAppProfiles.Public)]
         [HttpGet("GetByName/{userName}")]
-        public IActionResult GetByName(string userName)
+        public ActionResult<User> GetByName(string userName)
         {
             var user = _userService.GetByName(userName);
 
@@ -84,6 +90,18 @@ namespace API_RoleBased_Swagger.Controllers
                 return NotFound();
 
             return Ok(user);
+        }
+        [AllowAnonymous]
+        [AppProfiles(EnumAppProfiles.Public)]
+        [HttpGet("GetAPIUser/{userName}")]
+        public ActionResult<APIUser> GetAPIUser(string userName)
+        {
+            var user = _userService.GetByName(userName);
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(_mapper.Map<APIUser>(user));
         }
     }
 }

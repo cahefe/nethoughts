@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -24,6 +23,7 @@ namespace API_RoleBased_Swagger.Controllers
             _logger = logger;
         }
 
+        [AppProfiles(EnumAppProfiles.Public)]
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
@@ -37,8 +37,9 @@ namespace API_RoleBased_Swagger.Controllers
             .ToArray();
         }
         
+        [AppProfiles(EnumAppProfiles.Forecast)]
         [Authorize(Roles = "MyCustomRole")]
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         public ActionResult<WeatherForecast> Get(int id)
         {
             var rng = new Random();
