@@ -11,7 +11,7 @@ namespace API_RoleBased_Swagger
         Forecast = 4
     }
 
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class AppProfilesAttribute : Attribute
     {
         public AppProfilesAttribute(EnumAppProfiles profiles) => Prifiles = profiles;

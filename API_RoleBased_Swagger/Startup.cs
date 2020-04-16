@@ -37,6 +37,19 @@ namespace API_RoleBased_Swagger
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    // .AddFilter("Microsoft", LogLevel.Warning)
+                    // .AddFilter("System", LogLevel.Warning)
+                    // .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
+                    .AddConfiguration(Configuration.GetSection("Logging"))
+                    .AddConsole()
+                    .AddDebug();
+            });
+            ILogger logger = loggerFactory.CreateLogger<Program>();
+            logger.LogInformation("Example log message");
+
             //services.AddControllers();
             services.AddCors();
             services.AddControllers();
@@ -117,7 +130,8 @@ namespace API_RoleBased_Swagger
             //  AutoMapper
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<User, APIUser>();
+                cfg.CreateMap<User, APIUser>()
+                    .ForMember(dest => dest.FullName, act => act.MapFrom(src => string.Join(' ', src.FirstName, src.LastName)));
             });
             IMapper mapper = config.CreateMapper();
             services.AddSingleton(mapper);
