@@ -10,5 +10,6 @@ namespace API_RoleBased_Swagger.Entities
         public string Role { get; set; }
         public string Token { get; set; }
         public int PartyID { get; set; }
+        public string Privilege { get; set; }
     }
 }

@@ -32,10 +32,13 @@ namespace API_RoleBased_Swagger.Services
 
         private readonly AppSettings _appSettings;
         readonly ILogger _logger;
+        // private readonly IPrivilegeFactory _privilegeFactory;
+        private readonly Func<PrivilegeTypeEnum, IPrivilegeService> _privilegeFactory;
 
-        public UserService(IOptions<AppSettings> appSettings, ILoggerFactory loggerFactory)
+        public UserService(IOptions<AppSettings> appSettings, Func<PrivilegeTypeEnum, IPrivilegeService> privilegeFactory, ILoggerFactory loggerFactory)
         {
             _appSettings = appSettings.Value;
+            _privilegeFactory = privilegeFactory;
             _logger = loggerFactory.CreateLogger<UserService>();
         }
 
@@ -69,6 +72,13 @@ namespace API_RoleBased_Swagger.Services
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
+            //  Custom Factory (Privilege)
+            if (user.Username == "admin")
+                user.Privilege = _privilegeFactory(PrivilegeTypeEnum.Admin).ShowMyInfo();
+            else
+                user.Privilege = _privilegeFactory(PrivilegeTypeEnum.User).ShowMyInfo();
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
 
@@ -79,11 +89,7 @@ namespace API_RoleBased_Swagger.Services
 
         public IEnumerable<User> GetAll() => _users.WithoutPasswords();
 
-        public User GetById(int id)
-        {
-            var user = _users.FirstOrDefault(x => x.Id == id);
-            return user.WithoutPassword();
-        }
+        public User GetById(int id) => _users.FirstOrDefault(x => x.Id == id).WithoutPassword();
 
         public User GetByName(string user) => _users.FirstOrDefault(u => u.Username.Equals(user ?? ""));
     }
