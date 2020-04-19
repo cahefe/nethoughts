@@ -82,6 +82,22 @@ namespace API_RoleBased_Swagger
             // configure DI for application services
             services.AddScoped<IUserService, UserService>();
 
+            //  COnfigurando Interfaces com multiplas implementações...
+            services.AddSingleton<PrivilegeServiceAdmin>();
+            services.AddSingleton<PrivilegeServiceUser>();
+            services.AddSingleton<Func<PrivilegeTypeEnum, IPrivilegeService>>(serviceProvider => key =>
+            {
+                switch (key)
+                {
+                    case PrivilegeTypeEnum.Admin:
+                        return serviceProvider.GetService<PrivilegeServiceAdmin>();
+                    case PrivilegeTypeEnum.User:
+                        return serviceProvider.GetService<PrivilegeServiceUser>();
+                    default:
+                        throw new NotImplementedException();
+                }
+            });
+
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
