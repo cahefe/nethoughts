@@ -20,8 +20,15 @@ namespace API_RoleBased_Swagger.Services
         User GetByName(string user);
     }
 
+    //  Creating And Validating JWT Tokens In ASP.NET Core
+    //  https://dotnetcoretutorials.com/2020/01/15/creating-and-validating-jwt-tokens-in-asp-net-core/
     public class UserService : IUserService
     {
+        public const string ClaimPartyID = "PartyID";
+        public const string ClaimInvestorID = "InvestorID";
+        public const string ClaimInBehalfOfInvestorID = "BehalfOfInvestorID";
+
+
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
         private List<User> _users = new List<User>
         {
@@ -55,7 +62,8 @@ namespace API_RoleBased_Swagger.Services
             //  Prepara um objeto que armazenará informações customizadas do usuário autorizado...
             List<Claim> claims = new List<Claim> {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Spn, user.PartyID.ToString())
+                new Claim(ClaimPartyID, user.PartyID.ToString()),
+                new Claim(ClaimInvestorID, user.FirstName),
             };
             //  ... além dos papéis específicos atribuídos ao usuário...
             claims.AddRange((user.Role ?? "")
@@ -92,5 +100,14 @@ namespace API_RoleBased_Swagger.Services
         public User GetById(int id) => _users.FirstOrDefault(x => x.Id == id).WithoutPassword();
 
         public User GetByName(string user) => _users.FirstOrDefault(u => u.Username.Equals(user ?? ""));
+
+        //  Obter o Claim (se possível)....
+        public string GetClaim(string token, string claimType) => (new JwtSecurityTokenHandler().ReadToken(token) as JwtSecurityToken).Claims.FirstOrDefault(c => c.Type.Equals(claimType))?.Value;
+        // {
+            // var tokenHandler = new JwtSecurityTokenHandler();
+            // var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+            // var stringClaimValue = securityToken.Claims.FirstOrDefault(c => c.Type.Equals(claimType))?.Value;
+            // return stringClaimValue;
+        // }
     }
 }
