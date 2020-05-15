@@ -101,11 +101,12 @@ namespace API_RoleBased_Swagger
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
+
                 c.DocumentFilter<SwaggerAppProfilesFilter>();
-                //     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.OperationFilter<SwaggerProfileOperationFilter>();
                 c.SwaggerDoc("Forecast", new OpenApiInfo
                 {
-                    Version = "v1",
+                    Version = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                     Title = "Forecast",
                     Description = "A simple example ASP.NET Core Web API",
                     TermsOfService = new Uri("https://example.com/terms"),
@@ -123,7 +124,7 @@ namespace API_RoleBased_Swagger
                 });
                 c.SwaggerDoc("Users", new OpenApiInfo
                 {
-                    Version = "v1",
+                    Version = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                     Title = "Users",
                     Description = "A set of methods related with users Web API",
                     TermsOfService = new Uri("https://example.com/terms"),

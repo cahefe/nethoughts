@@ -8,11 +8,7 @@ namespace API_RoleBased_Swagger
 {
     public class SwaggerAppProfilesFilter : IDocumentFilter
     {
-        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
-        {
-            // RecriaDocumento(swaggerDoc, context);
-            ViaCustomAttribute(swaggerDoc, context);
-        }
+        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context) => ViaCustomAttribute(swaggerDoc, context);
         void ViaCustomAttribute(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             MethodInfo methodInfo;

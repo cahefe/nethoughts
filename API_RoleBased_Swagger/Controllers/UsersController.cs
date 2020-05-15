@@ -13,7 +13,7 @@ namespace API_RoleBased_Swagger.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         readonly IUserService _userService;
@@ -63,6 +63,7 @@ namespace API_RoleBased_Swagger.Controllers
         [Authorize(Roles = Role.Admin + ", " + Role.MyCustomRole)]
         // [Authorize(Roles = Role.MyCustomRole)]
         [AppProfiles(EnumAppProfiles.Users | EnumAppProfiles.Forecast)]
+        [AllowAnonymous]
         public ActionResult<IEnumerable<User>> GetAll()
         {
             var users = _userService.GetAll();
