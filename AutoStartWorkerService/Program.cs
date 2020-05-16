@@ -1,3 +1,6 @@
+using AutoStartWorkerService.Interfaces;
+using AutoStartWorkerService.Repo;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,6 +18,8 @@ namespace AutoStartWorkerService
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddDbContext<EventContext>(opt => opt.UseInMemoryDatabase(databaseName: "Test"));
+                    services.AddScoped<IEventsRepo, EventsRepo>();
                     services.AddHostedService<Worker>();
                 });
     }

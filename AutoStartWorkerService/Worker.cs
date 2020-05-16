@@ -1,6 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoStartWorkerService.Interfaces;
+using AutoStartWorkerService.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -8,12 +11,30 @@ namespace AutoStartWorkerService
 {
     public class Worker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        readonly ILogger<Worker> _logger;
+        readonly IServiceScopeFactory _serviceFactory;
 
-        public Worker(ILogger<Worker> logger) => (_logger) = (logger);
+        public Worker(IServiceScopeFactory serviceFactory, ILogger<Worker> logger)
+        {
+            _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var rand = new Random();
+            using (var scope = _serviceFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<EventContext>();
+                IEventsRepo eventsRepo = scope.ServiceProvider.GetRequiredService<IEventsRepo>();
+                var eventID = eventsRepo.Create(new EventDetail
+                {
+                    Price = (decimal)rand.NextDouble(),
+                    Description = $"Texto {rand.Next(10, 60)}"
+                });
+                var getEvent = eventsRepo.Get(eventID);
+                _logger.LogInformation($"Event: {getEvent.ID} - {getEvent.Moment} => " + getEvent.Description);
+            }
             Random rnd = new Random();
             double cont = 0;
             double valor = 0;
