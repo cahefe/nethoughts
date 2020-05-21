@@ -19,7 +19,7 @@ namespace Kash.Core.ServiceInterfaces.UTests
             };
             //  Act...
             var result = validationRule.IsValid(entry.Value);
-            Debug.Print(validationRule.ErrorMessage);
+            Debug.Print(validationRule.Code + ": " + validationRule.ErrorMessage);
             //  Assert
             Assert.True(result);
         }
