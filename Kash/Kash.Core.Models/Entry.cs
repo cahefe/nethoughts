@@ -1,21 +1,21 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using Kash.Core.Models.Validations;
 
 namespace Kash.Core.Models
 {
+    [BR0003_SomaDeveTerValorMinimoAttribute(20)]
     public class Entry
     {
         public short ID { get; set; }
         public EntryTypeEnum Type { get; set; }
         public short SupplierID { get; set; }
-        [BR0001_ValuesGreaterThanZero]
+        [BR0001_ValorDeveSerMaiorQueParametro]
         public decimal Value { get; set; }
         public decimal ExtraValue { get; set; }
         public decimal FeesValue { get; set; }
         public decimal TicketValue { get; set; }
         public decimal TotalValue { get; set; }
-        [MaxLength(100)]
+        [BR0002_QuantidadeMaximaCaracteresExedida(5)]
         public string Description { get; set; }
         public EntrySituationEnum Situation { get; set; }
         public DateTime DueDate { get; set; }
