@@ -49,7 +49,8 @@ namespace Kash.Clients.WebAPI.Controllers
                 FeesValue = entry.NewValue,
                 Description = entry.Texto,
             };
-            Validator.ValidateObject(x, new ValidationContext(x));
+            //  TODO: Consistir validação de modelo a partir da camada de serviço
+            //Validator.ValidateObject(x, new ValidationContext(x));
             entry.NewValue = entry.Value * (decimal)rng.NextDouble();
             return Ok(entry);
         }

@@ -19,18 +19,11 @@ namespace Kash.Clients.WebAPI.Validations
             MinValue = parameterMinValue.Equals(ParameterAttributeEnum.ValorMinimoCompra) ? 5.1m : 2.9m;
             ResultArgs = new object[] { MinValue };
         }
-        // protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        // {
-        //     var entry = (EntryReqDTO)value;
-        //     if (entry.Value + entry.NewValue >= MinValue)
-        //         return ValidationResult.Success;
-        //     return CreateValidationResult(new[] { nameof(entry.Value), nameof(entry.NewValue) }, MinValue);
-        // }
-        protected override bool RuleImplementation(object value, ValidationContext validationContext)
-        {
-            var entry = (EntryReqDTO)value;
-            Members = new[] { nameof(entry.Value), nameof(entry.NewValue) };
-            return entry.Value + entry.NewValue >= MinValue;
-        }
+        protected override Func<object, ValidationContext, bool> ChackCondition => (value, validationContext) =>
+            {
+                var entry = (EntryReqDTO)value;
+                Members = new string[] { nameof(entry.Value), nameof(entry.NewValue) };
+                return entry.Value + entry.NewValue >= MinValue;
+            };
     }
 }

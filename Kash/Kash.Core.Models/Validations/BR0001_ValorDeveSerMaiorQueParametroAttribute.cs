@@ -12,11 +12,10 @@ namespace Kash.Core.Models.Validations
             MinValue = (decimal)minValue;
             ResultArgs = new object[] { MinValue };
         }
-        protected override bool RuleImplementation(object value, ValidationContext validationContext)
-        {
-            Members = new[] { nameof(value) };
-            return (decimal)value > 0;
-        }
-
+        protected override Func<object, ValidationContext, bool> ChackCondition => (value, validationContext) =>
+            {
+                Members = new string[] { nameof(value) };
+                return (decimal)value > 0;
+            };
     }
 }

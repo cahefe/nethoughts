@@ -12,10 +12,10 @@ namespace Kash.Core.Models.Validations
             MaxLength = maxLength;
             ResultArgs = new object[] { MaxLength };
         }
-        protected override bool RuleImplementation(object value, ValidationContext validationContext)
-        {
-            Members = new[] { nameof(value) };
-            return value.ToString().Length <= MaxLength;
-        }
+        protected override Func<object, ValidationContext, bool> ChackCondition => (value, validationContext) =>
+            {
+                Members = new string[] { nameof(value) };
+                return value.ToString().Length <= MaxLength;
+            };
     }
 }
