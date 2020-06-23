@@ -39,7 +39,6 @@ namespace API_RoleBased_Swagger.Services
 
         private readonly AppSettings _appSettings;
         readonly ILogger _logger;
-        // private readonly IPrivilegeFactory _privilegeFactory;
         private readonly Func<PrivilegeTypeEnum, IPrivilegeService> _privilegeFactory;
 
         public UserService(IOptions<AppSettings> appSettings, Func<PrivilegeTypeEnum, IPrivilegeService> privilegeFactory, ILoggerFactory loggerFactory)

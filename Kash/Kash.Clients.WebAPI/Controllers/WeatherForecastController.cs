@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Kash.Clients.WebAPI.DTO;
-using System.ComponentModel.DataAnnotations;
 using Kash.Core.Models;
+using Kash.Clients.WebAPI.Services;
 
 namespace Kash.Clients.WebAPI.Controllers
 {
@@ -13,6 +13,7 @@ namespace Kash.Clients.WebAPI.Controllers
     [Route("api/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        INegocioService _negocioService;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -20,8 +21,9 @@ namespace Kash.Clients.WebAPI.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(INegocioService negocioService, ILogger<WeatherForecastController> logger)
         {
+            _negocioService = negocioService;
             _logger = logger;
         }
 
@@ -49,6 +51,7 @@ namespace Kash.Clients.WebAPI.Controllers
                 FeesValue = entry.NewValue,
                 Description = entry.Texto,
             };
+            _negocioService.TratarErro(x);
             //  TODO: Consistir validação de modelo a partir da camada de serviço
             //Validator.ValidateObject(x, new ValidationContext(x));
             entry.NewValue = entry.Value * (decimal)rng.NextDouble();

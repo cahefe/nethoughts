@@ -12,7 +12,6 @@ namespace Kash.Core.Models.Validations
         protected abstract Func<object, ValidationContext, bool> ChackCondition { get; }
         protected object[] ResultArgs { get; set; }
         protected string[] Members { get; set; }
-        // public new string ErrorMessage { get; private set; }
         protected BusinessRuleValidationAttribute(BusinessRuleExceptionCodeEnum validationBusinessRudeCode)
         {
             ValidationBusinessRuleCode = validationBusinessRudeCode;
@@ -25,7 +24,7 @@ namespace Kash.Core.Models.Validations
                 return ValidationResult.Success;
             return new ValidationResult(MixedErrorMesssage(ResultArgs), Members.Select(m => m.Replace(".value", "")));
         }
-        string MixedErrorMesssage(params object[] args) => ErrorMessage = ExtractBusinessRuleDescription();
+        string MixedErrorMesssage(params object[] args) => args == null || args.Length.Equals(0) ? ErrorMessage : string.Format(ErrorMessage, args);
         string ExtractBusinessRuleDescription()
         {
             BusinessRuleExceptionDescriptionAttribute attribute = default;

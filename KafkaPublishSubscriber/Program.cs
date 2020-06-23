@@ -33,53 +33,60 @@ namespace KafkaPublishSubscriber
             .AddRedisConfigProvider()
             //.AddCommandLine(args)
             .Build();
-            string redisserver = builtConfig.GetValue<string>("RedisConfig:hostport");
-            //  Consultar: https://www.codeproject.com/Articles/1556475/How-to-Write-a-Custom-Logging-Provider-in-ASP-NET e https://docs.microsoft.com/pt-br/aspnet/core/fundamentals/logging/?view=aspnetcore-3.1
-            //  Detalhes de log: https://docs.microsoft.com/pt-br/archive/msdn-magazine/2016/april/essential-net-logging-with-net-core
-            var loggerFactory = LoggerFactory.Create(builder =>
+
+            var testingRedis = false;
+            if (testingRedis)
             {
-                builder
-                    .AddConfiguration(builtConfig.GetSection("Logging"))
-                    .ClearProviders()
-                    .AddConsole(c =>
-                    {
-                        c.TimestampFormat = "[dd/MM/yy HH:mm:ss.fff] ";
-                    })
-                    .AddFile(f =>
-                    {
-                        f.Extension = "log";
-                        f.FileName = "app_info";
-                        f.FileSizeLimit = 4096;
-                        f.LogDirectory = "./logs";
-                        f.BatchSize = 5;
-                        f.Periodicity = PeriodicityOptions.Minutely;
-                        f.IsEnabled = true;
-                    });
-            });
-            _logger = loggerFactory.CreateLogger<Program>();
+                string redisserver = builtConfig.GetValue<string>("RedisConfig:hostport");
+                //  Consultar: https://www.codeproject.com/Articles/1556475/How-to-Write-a-Custom-Logging-Provider-in-ASP-NET e https://docs.microsoft.com/pt-br/aspnet/core/fundamentals/logging/?view=aspnetcore-3.1
+                //  Detalhes de log: https://docs.microsoft.com/pt-br/archive/msdn-magazine/2016/april/essential-net-logging-with-net-core
+                var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder
+                        .AddConfiguration(builtConfig.GetSection("Logging"))
+                        .ClearProviders()
+                        .AddConsole(c =>
+                        {
+                            c.TimestampFormat = "[dd/MM/yy HH:mm:ss.fff] ";
+                        })
+                        .AddFile(f =>
+                        {
+                            f.Extension = "log";
+                            f.FileName = "app_info";
+                            f.FileSizeLimit = 4096;
+                            f.LogDirectory = "./logs";
+                            f.BatchSize = 5;
+                            f.Periodicity = PeriodicityOptions.Minutely;
+                            f.IsEnabled = true;
+                        });
+                });
+                _logger = loggerFactory.CreateLogger<Program>();
 
-            UseRedis();
-            return;
+                UseRedis();
+            };
 
+            var testingKafka = true;
 
-
-            List<Task> TaskList = new List<Task>();
-            for (int x = 0; x < 10; x++)
+            if (testingKafka)
             {
-                var TaskItem = new Task(GoConsume);
-                TaskItem.Start();
-                TaskList.Add(TaskItem);
-                // TaskItem = new Task(GoProduce);
-                // TaskItem.Start();
-                // TaskList.Add(TaskItem);
-            }
-            Console.CancelKeyPress += (_, e) =>
-                            {
-                                e.Cancel = true; // prevent the process from terminating.
+                List<Task> TaskList = new List<Task>();
+                for (int x = 0; x < 1; x++)
+                {
+                    var TaskItem = new Task(GoConsume);
+                    TaskItem.Start();
+                    TaskList.Add(TaskItem);
+                    TaskItem = new Task(GoProduce);
+                    TaskItem.Start();
+                    TaskList.Add(TaskItem);
+                }
+                Console.CancelKeyPress += (_, e) =>
+                                {
+                                    e.Cancel = true; // prevent the process from terminating.
                                 isProcessing = false;
-                                _cts.Cancel();
-                            };
-            Task.WaitAll(TaskList.ToArray());
+                                    _cts.Cancel();
+                                };
+                Task.WaitAll(TaskList.ToArray());
+            }
         }
 
         /// https://www.c-sharpcorner.com/UploadFile/2cc834/using-redis-cache-with-C-Sharp/

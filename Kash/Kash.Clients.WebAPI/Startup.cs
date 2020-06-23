@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Kash.Clients.WebAPI.Services;
 
 namespace Kash.Clients.WebAPI
 {
@@ -59,7 +60,7 @@ namespace Kash.Clients.WebAPI
                     // If there are modelstate errors & all keys were correctly found/parsed we're dealing with validation errors
                     if (context.ModelState.ErrorCount > 0 && actionExecutingContext?.ActionArguments.Count == context.ActionDescriptor.Parameters.Count)
                     {
-                        problemDetails.Type = $"https://httpstatuses.com/422";
+                        problemDetails.Type = "https://httpstatuses.com/422";
                         problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
                         problemDetails.Extensions["traceId"] = traceId;
                         return new UnprocessableEntityObjectResult(problemDetails)
@@ -69,7 +70,7 @@ namespace Kash.Clients.WebAPI
                     }
 
                     // If one of the keys wasn't correctly found / couldn't be parsed we're dealing with null/unparsable input
-                    problemDetails.Type = $"https://httpstatuses.com/400";
+                    problemDetails.Type = "https://httpstatuses.com/400";
                     problemDetails.Status = StatusCodes.Status400BadRequest;
                     problemDetails.Extensions["traceId"] = traceId;
                     return new BadRequestObjectResult(problemDetails)
@@ -77,9 +78,9 @@ namespace Kash.Clients.WebAPI
                         ContentTypes = { "application/problem+json" }
                     };
                 };
-            })
-            ;
-            services.AddTransient<ProblemDetailsFactory, CustomProblemDetailsFactory>();
+            });
+            // services.AddTransient<ProblemDetailsFactory, CustomProblemDetailsFactory>();
+            services.AddScoped<INegocioService, NegocioService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
