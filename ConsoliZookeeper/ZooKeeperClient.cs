@@ -30,13 +30,13 @@ namespace ConsoliZookeeper
             _isLeader = new Dictionary<string, bool>();
             _nodeAdded = new Collection<string>();
         }
-        public async Task<bool> Exists(string nodeName) => await _zookeeper.existsAsync(nodeName) != null;
+        public bool Exists(string nodeName) => _zookeeper.existsAsync(nodeName) != null;
         public async Task Set(string nodeName, string nodeValue)
         {
             byte[] data = Encoding.ASCII.GetBytes(nodeValue);
 
-            var node = await _zookeeper.existsAsync(nodeName);
-            if (node != null)
+            var nodeExists = await _zookeeper.existsAsync(nodeName);
+            if (nodeExists != null)
             {
                 await _zookeeper.setDataAsync(nodeName, data);  //  Atualiza..,
             }
@@ -56,13 +56,34 @@ namespace ConsoliZookeeper
             }
             return default;
         }
-        public async Task Delete(string nodeName)
+        public async Task Delete(string nodeName, bool recursively = false)
         {
             var node = await _zookeeper.existsAsync(nodeName);
-            if (node != null)
+            if (node == null)
+                return;
+
+            if (!node.getNumChildren().Equals(0) && recursively)
             {
-                await _zookeeper.deleteAsync(nodeName);
+                var nodes = await _zookeeper.getChildrenAsync(nodeName);
+                if (nodes != null)
+                    foreach (var childNode in nodes.Children)
+                        await Delete(nodeName + '/' + childNode, recursively);
             }
+            await _zookeeper.deleteAsync(nodeName);
+            return;
+        }
+        public Task Connect()
+        {
+            _zookeeper = new ZooKeeper(_zookeeperServers, 30000, this);
+            return Task.CompletedTask;
+        }
+
+        public async Task Disconnect() =>
+            await _zookeeper.closeAsync();
+
+        public async void Dispose()
+        {
+            await Disconnect();
         }
 
 
@@ -78,14 +99,6 @@ namespace ConsoliZookeeper
 
         }
 
-        public Task Connect()
-        {
-            _zookeeper = new ZooKeeper(_zookeeperServers, 30000, this);
-            return Task.CompletedTask;
-        }
-
-        public async Task Disconnect() =>
-            await _zookeeper.closeAsync();
 
         private async Task AddRootNode()
         {
@@ -120,7 +133,7 @@ namespace ConsoliZookeeper
                 _isLeader[service] = leaderData == _uniqueGuid;
                 return _isLeader[service];
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -149,11 +162,6 @@ namespace ConsoliZookeeper
                     }
                     break;
             }
-        }
-
-        public async void Dispose()
-        {
-            await Disconnect();
         }
     }
 }
