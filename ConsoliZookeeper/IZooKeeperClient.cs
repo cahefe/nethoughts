@@ -7,6 +7,6 @@ namespace ConsoliZookeeper
     {
         Task Connect();
         Task Disconnect();
-        Task<bool> IsLeader(string service);
+        // Task<bool> IsLeader(string service);
     }
 }

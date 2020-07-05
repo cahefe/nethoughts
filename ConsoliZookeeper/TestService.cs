@@ -17,8 +17,9 @@ namespace ConsoliZookeeper
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected  async Task ExecuteAsync(CancellationToken stoppingToken)//override
+        protected Task ExecuteAsync(CancellationToken stoppingToken)//override
         {
+            /*
             //We'll do a loop where we check if we're the leader
             while (!stoppingToken.IsCancellationRequested)
                 //Depending on the service, you can be leader for one, but not for an other
@@ -28,6 +29,8 @@ namespace ConsoliZookeeper
                     //do stuff as the leader
                     return;
                 }
+                */
+            return Task.CompletedTask;
         }
     }
 }

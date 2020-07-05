@@ -1,0 +1,5 @@
+[2020-07-05 13:21:05.740 GMT 	ERROR 	ClientCnxn 	Error while calling watcher ] 	
+Exc level 0: System.NullReferenceException: Object reference not set to an instance of an object.
+   at ConsoliZookeeper.ZooKeeperClient.AddRootNode() in /home/guga/Repos/nethoughts/ConsoliZookeeper/ZooKeeperClient.cs:line 135
+   at ConsoliZookeeper.ZooKeeperClient.process(WatchedEvent event) in /home/guga/Repos/nethoughts/ConsoliZookeeper/ZooKeeperClient.cs:line 107
+   at org.apache.zookeeper.ClientCnxn.processEvent(WatcherSetEventPair event) in D:\ZooKeeper\src\csharp\src\ZooKeeperNetEx\zookeeper\ClientCnxn.cs:line 363

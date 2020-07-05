@@ -17,7 +17,7 @@ namespace ConsoliZookeeper
         private readonly IDictionary<string, bool> _isLeader;
         private readonly ICollection<string> _nodeAdded;
         private ZooKeeper _zookeeper;
-        private bool _leaderCheckReady = false;
+        // private bool _leaderCheckReady = false;
         private string _zookeeperServers = "localhost:2181";   //"localhost:2181,localhost:2888,localhost:3888"
 
         public ZooKeeperClient()
@@ -30,7 +30,7 @@ namespace ConsoliZookeeper
             _isLeader = new Dictionary<string, bool>();
             _nodeAdded = new Collection<string>();
         }
-        public bool Exists(string nodeName) => _zookeeper.existsAsync(nodeName) != null;
+        public bool Exists(string nodeName, bool watch = false) => _zookeeper.existsAsync(nodeName, watch) != null;
         public async Task Set(string nodeName, string nodeValue)
         {
             byte[] data = Encoding.ASCII.GetBytes(nodeValue);
@@ -70,7 +70,6 @@ namespace ConsoliZookeeper
                         await Delete(nodeName + '/' + childNode, recursively);
             }
             await _zookeeper.deleteAsync(nodeName);
-            return;
         }
         public Task Connect()
         {
@@ -85,9 +84,35 @@ namespace ConsoliZookeeper
         {
             await Disconnect();
         }
+        public override async Task process(WatchedEvent @event)
+        {
+            var path = @event.getPath();
+            var type = @event.get_Type();
+            var state = @event.getState();
+            Console.WriteLine($"Path: {path} + type {type} + state {state}");
 
-
-
+            switch (@event.get_Type())
+            {
+                case EventType.NodeDeleted:
+                    //Node deleted, clear the leader so it'll recheck
+                    _isLeader.Clear();
+                    break;
+                case EventType.None:
+                    switch (@event.getState())
+                    {
+                        case KeeperState.SyncConnected:
+                            //When connected add the root node
+                            await AddRootNode();
+                            break;
+                        case KeeperState.Disconnected:
+                            //When disconnected, reconnect and recheck leader
+                            _isLeader.Clear();
+                            await Connect();
+                            break;
+                    }
+                    break;
+            }
+        }
 
 
 
@@ -106,7 +131,7 @@ namespace ConsoliZookeeper
             if (rootNode == null)
                 //Add application node
                 await _zookeeper.createAsync(_nodeName, Encoding.UTF8.GetBytes(_nodeName), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            _leaderCheckReady = true;
+            // _leaderCheckReady = true;
         }
 
         private async Task<bool> CheckLeader(string service)
@@ -136,31 +161,6 @@ namespace ConsoliZookeeper
             catch
             {
                 return false;
-            }
-        }
-
-        public override async Task process(WatchedEvent @event)
-        {
-            switch (@event.get_Type())
-            {
-                case EventType.NodeDeleted:
-                    //Node deleted, clear the leader so it'll recheck
-                    _isLeader.Clear();
-                    break;
-                case EventType.None:
-                    switch (@event.getState())
-                    {
-                        case KeeperState.SyncConnected:
-                            //When connected add the root node
-                            await AddRootNode();
-                            break;
-                        case KeeperState.Disconnected:
-                            //When disconnected, reconnect and recheck leader
-                            _isLeader.Clear();
-                            await Connect();
-                            break;
-                    }
-                    break;
             }
         }
     }

@@ -1,0 +1,6 @@
+[2020-07-05 18:29:19.972 GMT 	ERROR 	ClientCnxn 	Error while calling watcher ] 	
+Exc level 0: System.NullReferenceException: Object reference not set to an instance of an object.
+   at org.apache.zookeeper.ZooKeeper.<>c__DisplayClass14_0.<.ctor>b__0(WatchedEvent event) in D:\ZooKeeper\src\csharp\src\ZooKeeperNetEx\zookeeper\ZooKeeper.cs:line 382
+   at org.apache.zookeeper.WatcherDelegate.process(WatchedEvent event) in D:\ZooKeeper\src\csharp\src\ZooKeeperNetEx\zookeeper\Watcher.cs:line 98
+   at org.apache.zookeeper.ClientCnxn.processEvent(WatcherSetEventPair event) in D:\ZooKeeper\src\csharp\src\ZooKeeperNetEx\zookeeper\ClientCnxn.cs:line 363
+[2020-07-05 18:30:03.706 GMT 	WARNING 	ClientCnxn 	Client session timed out, have not heard from server in 37295ms for sessionid 0x1000003095d0001] 	
