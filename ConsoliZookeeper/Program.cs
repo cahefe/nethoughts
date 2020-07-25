@@ -28,14 +28,14 @@ namespace ConsoliZookeeper
             {
                 string valor = new Random().Next(int.MaxValue).ToString();
                 //  Testa node
-                var exists = zk.Exists("/testnode", true);
+                var exists = zk.Exists("/testnode");
                 //  Atualizar node
-                zk.SetAsync<string>("/testnode", valor).Wait();
+                zk.SetAsync<string>("/testnode", valor, CreateModeEnum.EPHEMERAL).Wait();
                 //  Tenta obter um valor
                 var result = zk.GetAsync<string>("/testnode").Result;
                 Console.WriteLine($"Valores: registrado: {valor} - obtido: {result} - {valor.Equals(result)}");
                 //  Remover node
-                zk.DeleteAsync("/testnode", true).Wait();
+                //zk.DeleteAsync("/testnode", true).Wait();
             }
 
             /*

@@ -3,8 +3,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using org.apache.zookeeper;
-// using static org.apache.zookeeper.Watcher.Event;
-// using static org.apache.zookeeper.ZooDefs;
+using static org.apache.zookeeper.Watcher.Event;
+using static org.apache.zookeeper.ZooDefs.Ids;
 
 namespace ConsoliZookeeper
 {
@@ -24,17 +24,22 @@ namespace ConsoliZookeeper
         public ZKClient(Func<WatchedEvent, Task> watcherDelegate = null)
         {
             _servers = "localhost:2181";
-            _connectionTimeout = 30000;
+            _connectionTimeout = 15000;
             _watcherDelegate = watcherDelegate;
             Connect();
         }
         public Task Connect()
         {
             _zkClient = new ZooKeeper(_servers, _connectionTimeout, this);
+            Console.WriteLine("Conectado");
             return Task.CompletedTask;
         }
 
-        public async Task Disconnect() => await _zkClient.closeAsync();
+        public async Task Disconnect()
+        {
+            await _zkClient.closeAsync();
+            Console.WriteLine("Conectado");
+        }
 
         public async void Dispose() => await Disconnect();
 
@@ -47,7 +52,7 @@ namespace ConsoliZookeeper
             if (await _zkClient.existsAsync(nodeName) == null)  //  Cria..,
             {
                 var zkCreateMode = createMode.Equals(CreateModeEnum.PERSISTENT) ? CreateMode.PERSISTENT : CreateMode.EPHEMERAL;
-                await _zkClient.createAsync(nodeName, nodeData, null, zkCreateMode);
+                await _zkClient.createAsync(nodeName, nodeData, OPEN_ACL_UNSAFE, zkCreateMode);
             }
             else  //  Atualiza..,
                 await _zkClient.setDataAsync(nodeName, nodeData);
@@ -85,6 +90,16 @@ namespace ConsoliZookeeper
         }
         public override Task process(WatchedEvent @event)
         {
+            var eventPath = @event.getPath();
+            var eventType = @event.get_Type();
+            var eventState = @event.getState();
+
+            if (eventState.Equals(KeeperState.Disconnected))
+            {
+                Console.WriteLine($"*** Trying to reconnect *** Path: \"{eventPath}\" + type \"{eventType}\" + state \"{eventState}\"");
+                Connect();
+            }
+
             if (_watcherDelegate != default)
                 return _watcherDelegate(@event);
             return Task.CompletedTask;
