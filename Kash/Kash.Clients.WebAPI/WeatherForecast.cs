@@ -1,6 +1,6 @@
 using System;
 
-namespace API_RoleBased_Swagger
+namespace Kash.Clients.WebAPI
 {
     public class WeatherForecast
     {
@@ -11,7 +11,5 @@ namespace API_RoleBased_Swagger
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
         public string Summary { get; set; }
-        public int? CacheID { get; set; }
-        public string CacheVal { get; set; }
     }
 }

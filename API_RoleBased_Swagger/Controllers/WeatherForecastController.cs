@@ -4,6 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
 
 namespace API_RoleBased_Swagger.Controllers
 {
@@ -16,10 +18,12 @@ namespace API_RoleBased_Swagger.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        readonly IDistributedCache _cache;
+        readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IDistributedCache cache, ILogger<WeatherForecastController> logger)
         {
+            _cache = cache;
             _logger = logger;
         }
 
@@ -36,19 +40,31 @@ namespace API_RoleBased_Swagger.Controllers
             })
             .ToArray();
         }
-        
-        [AppProfiles(EnumAppProfiles.Forecast)]
-        [Authorize(Roles = "MyCustomRole")]
+
+        // [AppProfiles(EnumAppProfiles.Users)]
+        // [Authorize(Roles = "MyCustomRole")]
         [HttpGet("{id}")]
-        public ActionResult<WeatherForecast> Get(int id)
+        public async System.Threading.Tasks.Task<ActionResult<WeatherForecast>> GetAsync(int id)
         {
             var rng = new Random();
+            var cacheID = await _cache.GetAsync("id");
+            var cacheVal = await _cache.GetAsync("val");
             return Ok(new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(id),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                CacheID = cacheID == null ? -1 : Convert.ToInt32(cacheID),
+                CacheVal = cacheVal?.ToString()
             });
+        }
+        [HttpPost("{id}/{val}")]
+        public ActionResult<WeatherForecast> PostCache(int id, string val)
+        {
+            var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(1));
+            _cache.Set("id", Encoding.UTF8.GetBytes(id.ToString()), options);
+            _cache.Set("val", Encoding.UTF8.GetBytes(val), options);
+            return Ok(new { id, val });
         }
     }
 }
