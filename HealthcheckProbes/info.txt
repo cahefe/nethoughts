@@ -1,0 +1,1 @@
+MS Docs HelthChecks: https://docs.microsoft.com/pt-br/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-3.1
