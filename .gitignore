@@ -35,3 +35,6 @@ msbuild.wrn
 
 #Logs
 *.[Ll]og
+
+#Databases
+*.db
