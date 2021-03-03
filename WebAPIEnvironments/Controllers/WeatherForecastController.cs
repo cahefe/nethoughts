@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using WebAPIEnvironments.Attributes;
+using WebAPIEnvironments.Interfaces;
+using WebAPIEnvironments.Models;
 
 namespace WebAPIEnvironments.Controllers
 {
@@ -11,6 +13,7 @@ namespace WebAPIEnvironments.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        readonly ICalculosService _calculoService;
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -18,13 +21,14 @@ namespace WebAPIEnvironments.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ICalculosService calculosService, ILogger<WeatherForecastController> logger)
         {
-            _logger = logger;
+            _calculoService = calculosService ?? throw new ArgumentException(nameof(calculosService));
+            _logger = logger ?? throw new ArgumentException(nameof(logger));
         }
 
         [HttpGet]
-        [TopicoRelacionado(TopicosCenariosCertificacaoEnum.Negociacao)]
+        [CenarioCertificacaoRelacionado(CenariosCertificacaoEnum.Registrar_Investimento_Titulo_Inexistente)]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -32,7 +36,8 @@ namespace WebAPIEnvironments.Controllers
             {
                 Date = DateTime.Now.AddDays(index),
                 TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
+                Summary = Summaries[rng.Next(Summaries.Length)],
+                Calculo = _calculoService.CalcularSoma((decimal)rng.Next(), (decimal)rng.Next()),
             })
             .ToArray();
         }

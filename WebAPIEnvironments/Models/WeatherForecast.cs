@@ -1,6 +1,7 @@
 using System;
+using WebAPIEnvironments.Models;
 
-namespace WebAPIEnvironments
+namespace WebAPIEnvironments.Models
 {
     public class WeatherForecast
     {
@@ -11,5 +12,6 @@ namespace WebAPIEnvironments
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 
         public string Summary { get; set; }
+        public ResultadoCalculo Calculo { get; set; }
     }
 }

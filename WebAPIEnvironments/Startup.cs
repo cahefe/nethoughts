@@ -1,27 +1,27 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using WebAPIEnvironments.Filters;
+using WebAPIEnvironments.Interfaces;
+using WebAPIEnvironments.Services;
+using WebAPIEnvironments.Tests;
 
 namespace WebAPIEnvironments
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        IWebHostEnvironment Env { get; }
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+            //  Dica: Acrescente a identificação do ambiente poara acesso via mṕetodo "ConfigureServices"
+            Env = env;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -35,8 +35,42 @@ namespace WebAPIEnvironments
             });
             services.AddControllersWithViews(options =>
             {
-                options.Filters.Add(typeof(MySampleActionFilter));
+                //  Carrega o filtro de testes exclusivamente nos ambientes de "Testes_Certificacao"
+                if (Env.IsEnvironment("Testes_Certificacao"))
+                    options.Filters.Add(typeof(MySampleResourceFilter));
             });
+
+            //  Gestão de Injeção de dependência (de acordo com os ambientes a acessar - especialmente para apresentar o "Testes_Certificacao")
+            if (Env.IsEnvironment("Testes_Certificacao"))
+            {
+                //  Se ambiente de  "certificação"...
+
+                //  Catálogo de todos os testes disponíveis para certificação
+                services.AddScoped<Registrar_Investimento_Titulo_Inexistente>();
+
+                //  ... viabilização das mapeamentos de acordo com o teste requisitado...
+                services.AddScoped<DBContext_Tests_Negociacao>();
+                services.AddScoped<ICertificationTestService, CertificationTestService>();
+                services.AddScoped<ICalculosService>(serviceProvider => ObterImplementacaoParaTeste<ICalculosService>(serviceProvider));
+            }
+            else
+            {
+                //  Se aplicação padrão, utiliza as interfaces/implementações padrão para uso nos ambientes
+                services.AddScoped<ICalculosService, CalculosService>();
+
+            }
+        }
+        /// <summary>
+        /// Define a implementação a ser utilizada para uma interface de acordo com o cenário solicitado
+        /// </summary>
+        /// <typeparam name="TInterface">Interface a ser servida (de acordo com o enumerador de teste solicitado)</typeparam>
+        /// <param name="serviceProvider">Service provider</param>
+        /// <returns>Implementação da interface baseada no cenário de teste solicitado</returns>
+        /// <remarks>Esta funão acompanha o projeto de testes / Tratamento de DI</remarks>
+        TInterface ObterImplementacaoParaTeste<TInterface>(IServiceProvider serviceProvider)
+        {
+            var objType = Type.GetType($"{typeof(TestsBaseType).Namespace}.{serviceProvider.GetService<ICertificationTestService>().Cenario}");
+            return ((ICertificationCenarios)serviceProvider.GetService(objType)).PrepareScenario<TInterface>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,8 +88,6 @@ namespace WebAPIEnvironments
             app.UseRouting();
 
             app.UseAuthorization();
-
-            // app.UseCenariosCertificacao();
 
             app.UseEndpoints(endpoints =>
             {
