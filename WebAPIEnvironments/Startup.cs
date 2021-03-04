@@ -37,7 +37,7 @@ namespace WebAPIEnvironments
             {
                 //  Carrega o filtro de testes exclusivamente nos ambientes de "Testes_Certificacao"
                 if (Env.IsEnvironment("Testes_Certificacao"))
-                    options.Filters.Add(typeof(MySampleResourceFilter));
+                    options.Filters.Add(typeof(ValidaCenarioCertificacaoResourceFilter));
             });
 
             //  Gestão de Injeção de dependência (de acordo com os ambientes a acessar - especialmente para apresentar o "Testes_Certificacao")
@@ -70,6 +70,8 @@ namespace WebAPIEnvironments
         TInterface ObterImplementacaoParaTeste<TInterface>(IServiceProvider serviceProvider)
         {
             var objType = Type.GetType($"{typeof(TestsBaseType).Namespace}.{serviceProvider.GetService<ICertificationTestService>().Cenario}");
+            if (objType == null)
+                throw new InvalidCastException($"Failed on trying to obtain {nameof(TInterface)}");
             return ((ICertificationCenarios)serviceProvider.GetService(objType)).PrepareScenario<TInterface>();
         }
 
