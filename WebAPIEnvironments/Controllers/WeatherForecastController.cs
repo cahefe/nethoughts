@@ -34,7 +34,8 @@ namespace WebAPIEnvironments.Controllers
             Date = DateTime.Now.AddDays(index),
             TemperatureC = rng.Next(-20, 55),
             Summary = Summaries[rng.Next(Summaries.Length)],
-            Calculo = _calculoService.CalcularSoma((decimal)rng.Next(), (decimal)rng.Next()),
+            Calculo = _calculoService.CalcularSoma((decimal)rng.Next(10,20), (decimal)rng.Next(100,200)),
+            TextoAleatorio = _calculoService.GerarTexto(rng.Next(1, 4))
         }).ToArray();
     }
 }

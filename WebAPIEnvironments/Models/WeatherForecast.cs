@@ -13,5 +13,6 @@ namespace WebAPIEnvironments.Models
 
         public string Summary { get; set; }
         public ResultadoCalculo Calculo { get; set; }
+        public string TextoAleatorio { get; set; }
     }
 }
