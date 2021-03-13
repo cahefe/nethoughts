@@ -40,6 +40,18 @@ namespace WebAPIEnvironments
                     options.Filters.Add(typeof(ValidaCenarioCertificacaoResourceFilter));
             });
 
+            //  *** Registro das dependências ***
+
+            //  Dependências de contexto geral (usado em qualquer contexto/cenário)
+            //  Exemplo 1: Gerador de Textos
+            services.AddSingleton<TextosBogus>();
+            services.AddSingleton<TextosFixos>();
+            services.AddSingleton<IWideServiceFactory<ITextos>, TextosServiceFactory>();
+            //  Exemplo 2: Gerador de Numeros
+            services.AddSingleton<NumerosPositivos>();
+            services.AddSingleton<NumerosNegativos>();
+            services.AddSingleton<IWideServiceFactory<INumeros>, NumerosServiceFactory>();
+
             //  Gestão de Injeção de dependência (de acordo com os ambientes a acessar - especialmente para apresentar o "Testes_Certificacao")
             if (Env.IsEnvironment("Testes_Certificacao"))
             {
