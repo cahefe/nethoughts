@@ -59,19 +59,24 @@ namespace WebAPIEnvironments
 
                 //  Catálogo de todos os testes disponíveis para certificação
                 services.AddScoped<Registrar_Investimento_Titulo_Inexistente>();
+                //  ... com os respectivos repositórios mockados
+                services.AddScoped<DBContext_Tests_Negociacao>();
 
                 //  ... viabilização das mapeamentos de acordo com o teste requisitado...
-                services.AddScoped<DBContext_Tests_Negociacao>();
                 services.AddScoped<ICertificationTestService, CertificationTestService>();
-                services.AddScoped<ICalculosService>(serviceProvider => ObterImplementacaoParaTeste<ICalculosService>(serviceProvider));
+                // services.AddScoped<ICalculosService>(serviceProvider => ObterImplementacaoParaTeste<ICalculosService>(serviceProvider));
+                //  Registrar todas as interfaces de sistema e negócio que serão mockadas...
+                services.AddScoped<TestsServiceFactory<ICalculosService>>();
+                //  Registrar "vinculo" entre a interface de negócio e a factory de identificação da classe de teste...
+                services.AddScoped<ICalculosService>(serviceProvider => serviceProvider.GetService<TestsServiceFactory<ICalculosService>>().GetService());
             }
             else
             {
                 //  Se aplicação padrão, utiliza as interfaces/implementações padrão para uso nos ambientes
                 services.AddScoped<ICalculosService, CalculosService>();
-
             }
         }
+        /*
         /// <summary>
         /// Define a implementação a ser utilizada para uma interface de acordo com o cenário solicitado
         /// </summary>
@@ -79,6 +84,7 @@ namespace WebAPIEnvironments
         /// <param name="serviceProvider">Service provider</param>
         /// <returns>Implementação da interface baseada no cenário de teste solicitado</returns>
         /// <remarks>Esta funão acompanha o projeto de testes / Tratamento de DI</remarks>
+        [Obsolete("Método desnecessário a partir da implementação TestsServiceFactory<TInterface>")]
         TInterface ObterImplementacaoParaTeste<TInterface>(IServiceProvider serviceProvider)
         {
             var objType = Type.GetType($"{typeof(TestsBaseType).Namespace}.{serviceProvider.GetService<ICertificationTestService>().Cenario}");
@@ -86,6 +92,7 @@ namespace WebAPIEnvironments
                 throw new InvalidCastException($"Failed on trying to obtain {nameof(TInterface)}");
             return ((ICertificationCenarios)serviceProvider.GetService(objType)).PrepareScenario<TInterface>();
         }
+        */
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

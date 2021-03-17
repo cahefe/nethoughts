@@ -24,7 +24,7 @@ namespace WebAPIEnvironments.Controllers
         readonly ILogger<WeatherForecastController> _logger;
 
         public WeatherForecastController(ICalculosService calculosService, IWideServiceFactory<ITextos> textosServiceFactory, IWideServiceFactory<INumeros> numerosServiceFactory, ILogger<WeatherForecastController> logger)
-        {
+        {   
             _calculoService = calculosService ?? throw new ArgumentException(nameof(calculosService));
             _textosServiceFactory = textosServiceFactory ?? throw new ArgumentException(nameof(textosServiceFactory));
             _numerosServiceFactory = numerosServiceFactory ?? throw new ArgumentException(nameof(numerosServiceFactory));

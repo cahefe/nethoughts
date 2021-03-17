@@ -11,6 +11,6 @@ namespace WebAPIEnvironments.Interfaces
         /// </summary>
         /// <param name="context">Context to be analized</param>
         /// <returns>Implementation of an instance</returns>
-        TInterface GetService(object context);
+        TInterface GetService(object context = null);
     }
 }
