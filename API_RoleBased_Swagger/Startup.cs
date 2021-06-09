@@ -89,17 +89,13 @@ namespace API_RoleBased_Swagger
             services.AddSingleton<PrivilegeServiceAdmin>();
             services.AddSingleton<PrivilegeServiceUser>();
             services.AddSingleton<Func<PrivilegeTypeEnum, IPrivilegeService>>(serviceProvider => key =>
-            {
-                switch (key)
+                key switch
                 {
-                    case PrivilegeTypeEnum.Admin:
-                        return serviceProvider.GetService<PrivilegeServiceAdmin>();
-                    case PrivilegeTypeEnum.User:
-                        return serviceProvider.GetService<PrivilegeServiceUser>();
-                    default:
-                        throw new NotImplementedException();
+                    PrivilegeTypeEnum.Admin => serviceProvider.GetService<PrivilegeServiceAdmin>(),
+                    PrivilegeTypeEnum.User => serviceProvider.GetService<PrivilegeServiceUser>(),
+                    _ => throw new NotImplementedException()
                 }
-            });
+            );
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>

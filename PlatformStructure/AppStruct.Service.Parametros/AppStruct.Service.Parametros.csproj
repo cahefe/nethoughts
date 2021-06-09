@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppStruct.Domain.Parametros.Service\AppStruct.Domain.Parametros.Service.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <PackageId>AppStruct.Service.Parametros</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>John Doe Foo, John Doe Bar</Authors>
+    <Company>Company Name</Company>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>

@@ -3,8 +3,8 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.19"/>
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.23"/>
     <PackageReference Include="Hangfire.SQLite" Version="1.4.2"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.3"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.6"/>
   </ItemGroup>
 </Project>

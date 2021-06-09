@@ -1,0 +1,22 @@
+{
+    "folders": [
+        {
+            "path": "AppStruct.Domain.Common.Models"
+        },
+        {
+            "path": "AppStruct.Domain.Parametros.Application"
+        },
+        {
+            "path": "AppStruct.Domain.Parametros.Model"
+        },
+        {
+            "path": "AppStruct.Domain.Parametros.Repository"
+        },
+        {
+            "path": "AppStruct.Domain.Parametros.Service"
+        },
+        {
+            "path": "resources"
+        }
+    ]
+}
