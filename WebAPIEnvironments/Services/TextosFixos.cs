@@ -1,4 +1,3 @@
-using System;
 using WebAPIEnvironments.Interfaces;
 
 namespace WebAPIEnvironments.Services

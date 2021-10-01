@@ -1,5 +1,3 @@
-using WebAPIEnvironments.Models;
-
 namespace WebAPIEnvironments.Models
 {
     public class ResultadoCalculo
